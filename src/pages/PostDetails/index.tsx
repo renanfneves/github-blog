@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom'
 import { useTheme } from 'styled-components'
 import { ExternalLink } from '../../components/ExternalLink'
 import { Loading } from '../../components/Loading'
+import { NotFound } from '../../components/NotFound'
 import { useActivePost } from '../../hooks/useActivePost'
 import { handleDisplayDiffDays } from '../../utils/handle-display-diff-days'
 import {
@@ -18,7 +19,7 @@ import {
 export function PostDetails() {
   const theme = useTheme()
 
-  const { activePost, clearActivePost } = useActivePost()
+  const { activePost, error, clearActivePost } = useActivePost()
 
   const { diffDays, displayComments } = useMemo(() => {
     if (!activePost) return {}
@@ -38,8 +39,12 @@ export function PostDetails() {
     }
   }, [clearActivePost])
 
-  if (!activePost) {
+  if (!activePost && !error) {
     return <Loading />
+  }
+
+  if (error) {
+    return <NotFound />
   }
 
   return (
@@ -50,11 +55,11 @@ export function PostDetails() {
             <FontAwesomeIcon icon="chevron-left" color={theme.blue} size="sm" />
             <span>voltar</span>
           </BackwardLink>
-          <ExternalLink href={activePost.url} target="_blank">
+          <ExternalLink href={activePost!.url} target="_blank">
             ver no github
           </ExternalLink>
         </div>
-        <h1>{activePost.title}</h1>
+        <h1>{activePost!.title}</h1>
         <PostInfo>
           <div>
             <PostInfoLabel>
@@ -63,7 +68,7 @@ export function PostDetails() {
                 color={theme['base-label']}
                 size="lg"
               />
-              <span>{activePost.author.login}</span>
+              <span>{activePost!.author.login}</span>
             </PostInfoLabel>
             <PostInfoLabel>
               <FontAwesomeIcon
@@ -84,7 +89,7 @@ export function PostDetails() {
           </div>
         </PostInfo>
       </PostInfoContainer>
-      <PostContent dangerouslySetInnerHTML={{ __html: activePost.body }} />
+      <PostContent dangerouslySetInnerHTML={{ __html: activePost!.body }} />
     </PostDetailsContainer>
   )
 }
